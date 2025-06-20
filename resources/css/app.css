@@ -1,0 +1,11 @@
+video {
+    width: 50%;
+    max-width: 300px;
+    margin: 10px auto;
+    display: block;
+    border: 3px solid #0d6efd;
+    border-radius: 10px;
+}
+#status {
+      padding-top: 10px;
+}
