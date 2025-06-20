@@ -20,6 +20,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 use App\Http\Controllers\Api\UploadController;
+Route::get('/ping', [UploadController::class, 'ping']);
 Route::get('/upload', [UploadController::class, 'read']);
 Route::post('/upload', [UploadController::class, 'store']);
 

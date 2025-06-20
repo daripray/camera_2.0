@@ -8,8 +8,12 @@ use Illuminate\Support\Facades\Storage;
 
 class UploadController extends Controller
 {
+    public function ping(Request $request){
+        $result = "pong";
+        return $result;
+    }
     public function read(Request $request){
-        $result = $request;
+        $result = true;
         return $result;
     }
     public function store(Request $request)
