@@ -83,8 +83,25 @@
             video.onloadedmetadata = () => resolve(video);
         });
     }
+    
+
+    function drawToCanvas() {
+        const ctx = canvas.getContext('2d');
+        function draw() {
+            if (video.readyState === 4) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            }
+            if (isRecording) {
+                drawLoopId = requestAnimationFrame(draw);
+            }
+        }
+        draw();
+    }
 
     function startRecording() {
+        console.log("startRecording()");        
         recordedChunks = [];
         const canvasStream = canvas.captureStream(15);
         recorder = new MediaRecorder(canvasStream, {
@@ -108,10 +125,12 @@
         };
         recorder.start();
         isRecording = true;
+        drawToCanvas(); // Start drawing while recording
     }
 
     function stopRecording() {
         if (recorder && isRecording) {
+            console.log("stopRecording()");
             recorder.stop();
             isRecording = false;
         }
@@ -121,18 +140,6 @@
         model = await cocoSsd.load();
         statusEl.innerHTML = "Model diload...";
         statusEl.innerHTML = "Model diload...";
-
-        // Setup canvas
-        const ctx = canvas.getContext('2d');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-
-        function drawToCanvas() {
-            if (!isDetecting || video.paused || video.ended) return;
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            requestAnimationFrame(drawToCanvas);
-        }
-        drawToCanvas();
 
         detectionInterval = setInterval(async () => {
             if (!model || video.readyState !== 4) return;
