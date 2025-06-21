@@ -55,7 +55,7 @@ class LogViewer extends Component
             // dd([$logLines,$logMap, $this->videos]);
 
         // Simpan log mentah juga kalau dibutuhkan di bawah
-        $this->logs = array_reverse($logMap->toArray()); // terbaru di atas
+        $this->logs = array_reverse($logLines); // terbaru di atas
     }
 
     public function render()

@@ -59,9 +59,7 @@
                     <ul class="list-group">
                         @forelse ($logs as $log)
                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <small>Date:{{ $log['datetime'] }}</small>
-                                <small>Name:{{ $log['filename'] }}</small>
-                                <small>Size:{{ number_format($log['filesize'] / 1024, 2) }} KB</small>
+                                <small>{{ $log }}</small>
                             </li>
                         @empty
                             <li class="list-group-item text-muted">Tidak ada video</li>
