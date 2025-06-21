@@ -32,14 +32,15 @@ class UploadController extends Controller
             return response()->json(['error' => 'Uploaded file is empty'], 422);
         }
 
-        $filename = 'deteksi_' . now()->format('Ymd_His') . '.webm';
+        $filename = 'VID_' . now()->format('Ymd_His') . '.webm';
         $path = $file->storeAs('videos', $filename, 'public');
 
         // Ambil ukuran file setelah disimpan
         $filesize = Storage::disk('public')->size($path); // dalam bytes
 
         // Simpan log
-        Storage::append('log.txt', now() . " - Uploaded: $filename, Size: {$filesize} bytes");
+        $datetime = now();
+        Storage::append('log.txt', "Datetime:{$datetime}; Name:{$filename}; Size:{$filesize}");
 
         return response()->json([
             'message'  => 'Upload berhasil',
