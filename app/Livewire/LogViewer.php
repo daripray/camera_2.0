@@ -19,8 +19,14 @@ class LogViewer extends Component
             ->values();
 
         // Ambil isi log
-        if (Storage::exists('log.txt')) {
-            $this->logs = explode("\n", Storage::get('log.txt'));
+        // if (Storage::exists('log.txt')) {
+        //     $this->logs = explode("\n", Storage::get('log.txt'));
+        // }
+        
+        $logPath =  storage_path('app/log.txt'); // atau storage/log.txt sesuai lokasi sebenarnya
+        if (file_exists($logPath)) {
+            $lines = file($logPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            $this->logs = array_reverse($lines); // Terbaru di atas
         }
     }
 
