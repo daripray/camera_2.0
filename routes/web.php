@@ -27,3 +27,8 @@ Route::post('/upload', function () {
     \App\Helpers\Logger::write("Video uploaded: " . $filename);
     return response('OK');
 })->name('upload-video');
+
+
+use App\Livewire\LogViewer;
+Route::get('/log', LogViewer::class);
+

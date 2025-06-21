@@ -1,4 +1,3 @@
-@extends('layouts.app')
 @push('styles')
 <style>
     video {
@@ -15,7 +14,6 @@
   </style>
 @endpush
 
-@section('content')
 <div class="container py-4">
     <h2 class="text-center mb-4">🎥 Deteksi Manusia v2 (canvas.captureStream)</h2>
 
@@ -34,7 +32,6 @@
         <p id="status" class="text-center text-muted">Status: <b>Menunggu deteksi...</b></p>
     </div>
 </div>
-@endsection
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.0.0"></script>
