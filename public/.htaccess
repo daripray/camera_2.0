@@ -14,8 +14,19 @@
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
-    # Send Requests To Front Controller...
-    RewriteCond %{REQUEST_FILENAME} !-d
+    # Redirect index.php requests to the root
+    RewriteCond %{REQUEST_URI} ^/index\.php
+    RewriteRule ^index\.php(.*)$ /$1 [R=301,L]
+
+    # If the requested file or directory does not exist
     RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Send request to index.php
     RewriteRule ^ index.php [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-Content-Type-Options "nosniff"
 </IfModule>

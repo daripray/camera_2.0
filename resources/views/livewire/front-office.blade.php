@@ -1,4 +1,3 @@
-@extends('layouts.app')
 @push('styles')
 <style>
     video {
@@ -15,7 +14,6 @@
   </style>
 @endpush
 
-@section('content')
 <div class="container py-4">
     <h2 class="text-center mb-4">🎥 Deteksi Manusia v2 (canvas.captureStream)</h2>
 
@@ -29,14 +27,12 @@
     </div>
 
     <div class="text-center">
-        <video id="video" autoplay muted playsinline></video>
+        <video id="video" autoplay muted playsinline class="d-none"></video>
         <canvas id="canvas" style="display:none;"></canvas>
-        <p id="status" class="text-center text-muted">Status: <b>Menunggu deteksi...</b></p>
+        <p id="status" class="text-center text-muted"></p>
     </div>
 </div>
-@endsection
 
-@push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.0.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
 <script>
@@ -83,14 +79,45 @@
             video.onloadedmetadata = () => resolve(video);
         });
     }
+    
+
+    function drawToCanvas() {
+        const ctx = canvas.getContext('2d');
+        function draw() {
+            if (video.readyState === 4) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            }
+            if (isRecording) {
+                drawLoopId = requestAnimationFrame(draw);
+            }
+        }
+        draw();
+    }
 
     function startRecording() {
+        console.log("startRecording()");        
         recordedChunks = [];
         const canvasStream = canvas.captureStream(15);
-        recorder = new MediaRecorder(canvasStream, {
+        const audioTracks = currentStream.getAudioTracks(); // ambil audio dari kamera/mikrofon
+
+        if (!audioTracks || audioTracks.length === 0) {
+            console.warn("Tidak ada track audio yang tersedia!");
+        }
+        console.log("Audio Tracks:", audioTracks);
+
+        // Gabungkan video dari canvas + audio dari kamera
+        const combinedStream = new MediaStream([
+            ...canvasStream.getVideoTracks(),
+            ...audioTracks
+        ]);
+
+        recorder = new MediaRecorder(combinedStream, {
             mimeType: "video/webm",
             videoBitsPerSecond: 1500000
         });
+
         recorder.ondataavailable = e => e.data.size > 0 && recordedChunks.push(e.data);
         recorder.onstop = () => {
             const blob = new Blob(recordedChunks, { type: "video/webm" });
@@ -103,15 +130,18 @@
                 body: formData
             })
             .then(res => res.text())
-            .then(msg => console.log("Upload selesai:", msg));
-            statusEl.innerHTML += "<br><i>Video telah direkam dan diupload</i>";
+            .then(msg => console.log("Upload selesai:", msg))
+            .then(msg => statusEl.innerHTML = "<br><i>Video telah direkam dan diupload</i>");
+            // statusEl.innerHTML += "<br><i>Video telah direkam dan diupload</i>";
         };
         recorder.start();
         isRecording = true;
+        drawToCanvas(); // Start drawing while recording
     }
 
     function stopRecording() {
         if (recorder && isRecording) {
+            console.log("stopRecording()");
             recorder.stop();
             isRecording = false;
         }
@@ -120,19 +150,6 @@
     async function detectHuman() {
         model = await cocoSsd.load();
         statusEl.innerHTML = "Model diload...";
-        statusEl.innerHTML = "Model diload...";
-
-        // Setup canvas
-        const ctx = canvas.getContext('2d');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-
-        function drawToCanvas() {
-            if (!isDetecting || video.paused || video.ended) return;
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            requestAnimationFrame(drawToCanvas);
-        }
-        drawToCanvas();
 
         detectionInterval = setInterval(async () => {
             if (!model || video.readyState !== 4) return;
@@ -176,8 +193,10 @@
             toggleBtn.textContent = "Stop";
             toggleBtn.classList.remove("btn-success");
             toggleBtn.classList.add("btn-danger");
+            statusEl.classList.remove('d-none');
             statusEl.innerHTML = "Mengakses kamera...";
             await setupCamera(cameraSelect.value);
+            video.classList.remove('d-none');
             await detectHuman();
             isDetecting = true;
         } else {
@@ -187,6 +206,8 @@
             stopRecording();
             stopDetection();
             isDetecting = false;
+            video.classList.add('d-none');
+            statusEl.classList.add('d-none');
         }
     });
 
@@ -194,4 +215,3 @@
         await getCameraDevices();
     })();
 </script>
-@endpush
