@@ -103,3 +103,17 @@ Jika ada pertanyaan, hubungi melalui halaman ini atau email pribadi yang disedia
 
 ---
 
+## ✅ Command Umum Setelah Deploy
+# 1. Clear semua cache
+php artisan optimize:clear
+
+# 2. Cache ulang konfigurasi dan route
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# 3. Buat symbolic link storage ke public
+php artisan storage:link
+
+# 4. Jalankan migrasi database (opsional)
+php artisan migrate --force
